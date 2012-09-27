@@ -155,13 +155,3 @@ class GraphDB(object):
         for key, val in properties.items():
             node[key] = val
         return Node(node)
-
-    @property
-    def reference_node(self):
-        return Node(self.graphdb.getReferenceNode())
-
-    def traversal(self):
-        return Traversal.graphdb.description()
-
-    def query(self, query, **params):
-        return self.graphdb._cypher_engine.execute(query, **params)
