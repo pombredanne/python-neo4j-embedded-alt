@@ -112,7 +112,7 @@ class Relationships(object):
     def indexes():
         raise NotImplemented
 
-    def __iter__(self):
+    def __call__(self):
         iterator = self._operations.getAllRelationships().iterator()
         return imap(Relationship, iterator)
 
