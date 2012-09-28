@@ -56,7 +56,6 @@ class NodeRelationships(object):
         return imap(Relationship, self._node.getRelationships())
 
     def __relationship(self, direction, type):
-        import debug
         if type:
             type = DynamicRelationshipType.withName(type)
             iterator = self._node.getRelationships(direction, type)
