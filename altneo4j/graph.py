@@ -119,9 +119,6 @@ class Relationships(object):
     def types(self):
         return self.__operations.getAllRelationshipTypes()
 
-    def __len__(self):
-        return len(list(self))
-
     def get(self, id):
         return Relationship(self._db.getRelationshipById(id))
 
