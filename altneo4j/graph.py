@@ -28,6 +28,9 @@ class Element(object):
     def values(self):
         return self._element.getPropertyValues()
 
+    def delete(self):
+        self._element.delete()
+
     def __eq__(self, other):
         return self.id == other.id
 
