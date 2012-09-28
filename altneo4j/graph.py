@@ -11,35 +11,45 @@ from java import Direction
 
 class Element(object):
 
+    @property
+    def id(self):
+        return self._element.getId()
+
     def __getitem__(self, key):
-        return self.__element.__getitem__(self, key)
+        return self._element.getProperty(key)
 
     def __setitem__(self, key, value):
-        self.__element.setProperty(self, key, value)
+        self._element.setProperty(key, value)
 
     def items(self):
-        return self.__element.items()
+        return self._element.items()
 
     def keys(self):
-        return self.__element.getPropertyKeys()
+        return self._element.getPropertyKeys()
 
     def values(self):
-        return self.__element.getPropertyValues()
+        return self._element.getPropertyValues()
+
+    def __eq__(self, other):
+        return self.id == other.id
+
+    def delete(self):
+        self._element.delete()
 
 
 class Relationship(Element):
 
     def __init__(self, relationship):
-        self.__element = relationship
+        self._element = relationship
 
     def type(self):
-        return self.__relationship.getType()
+        return self._element.getType().name()
 
     def start(self):
-        return self.__relationship.getStart()
+        return Node(self._element.getStartNode())
 
     def end(self):
-        return self.__relationship.getEnd()
+        return Node(self._element.getEndNode())
 
 
 class NodeRelationships(object):
@@ -61,10 +71,10 @@ class NodeRelationships(object):
         return imap(Relationship, iterator)
 
     def outgoing(self, type=None):
-        return iter(self.__relationship(Direction.OUTGOING, type))
+        return self.__relationship(Direction.OUTGOING, type)
 
     def incoming(self, type=None):
-        return iter(self.__relationship(Direction.INCOMING, type))
+        return self.__relationship(Direction.INCOMING, type)
 
 
 class Node(Element):
@@ -91,7 +101,7 @@ class Nodes(object):
     def index():
         raise NotImplemented
 
-    def __iter__(self):
+    def __call__(self):
         iterator = self._operations.getAllNodes().iterator()
         return imap(Node, iterator)
 
@@ -99,7 +109,7 @@ class Nodes(object):
         return len(list(self))
 
     def get(self, id):
-        return Node(self._db.getNodeById(id))
+        return Node(self._db.getNodeById(long(id)))
 
 
 class Relationships(object):
@@ -112,7 +122,7 @@ class Relationships(object):
     def indexes():
         raise NotImplemented
 
-    def __iter__(self):
+    def __call__(self):
         iterator = self._operations.getAllRelationships().iterator()
         return imap(Relationship, iterator)
 
@@ -123,7 +133,7 @@ class Relationships(object):
         return len(list(self))
 
     def get(self, id):
-        return Relationship(self._db.getRelationshipById(id))
+        return Relationship(self._db.getRelationshipById(long(id)))
 
 
 class GraphDB(object):
@@ -155,3 +165,6 @@ class GraphDB(object):
         for key, val in properties.items():
             node[key] = val
         return Node(node)
+
+    def close(self):
+        self._db.shutdown()
