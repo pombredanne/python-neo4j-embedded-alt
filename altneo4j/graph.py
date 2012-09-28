@@ -158,3 +158,6 @@ class GraphDB(object):
         for key, val in properties.items():
             node[key] = val
         return Node(node)
+
+    def close(self):
+        self._db.shutdown()
