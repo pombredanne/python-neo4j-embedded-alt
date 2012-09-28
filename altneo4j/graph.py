@@ -1,8 +1,6 @@
 from itertools import imap
 from contextlib import contextmanager
 
-import jpype
-
 from java import DynamicRelationshipType
 from java import GlobalGraphOperations
 from java import EmbeddedGraphDatabase
@@ -11,35 +9,42 @@ from java import Direction
 
 class Element(object):
 
+    @property
+    def id(self):
+        return self._element.getId()
+
     def __getitem__(self, key):
-        return self.__element.__getitem__(self, key)
+        return self._element.getProperty(key)
 
     def __setitem__(self, key, value):
-        self.__element.setProperty(self, key, value)
+        self._element.setProperty(key, value)
 
     def items(self):
-        return self.__element.items()
+        return self._element.items()
 
     def keys(self):
-        return self.__element.getPropertyKeys()
+        return self._element.getPropertyKeys()
 
     def values(self):
-        return self.__element.getPropertyValues()
+        return self._element.getPropertyValues()
+
+    def __eq__(self, other):
+        return self.id == other.id
 
 
 class Relationship(Element):
 
     def __init__(self, relationship):
-        self.__element = relationship
+        self._element = relationship
 
     def type(self):
-        return self.__relationship.getType()
+        return self._element.getType().name()
 
     def start(self):
-        return self.__relationship.getStart()
+        return Node(self._element.getStartNode())
 
     def end(self):
-        return self.__relationship.getEnd()
+        return Node(self._element.getEndNode())
 
 
 class NodeRelationships(object):
@@ -51,6 +56,7 @@ class NodeRelationships(object):
         return imap(Relationship, self._node.getRelationships())
 
     def __relationship(self, direction, type):
+        import debug
         if type:
             type = DynamicRelationshipType.withName(type)
             iterator = self._node.getRelationships(direction, type)
@@ -58,13 +64,14 @@ class NodeRelationships(object):
         else:
             iterator = self._node.getRelationships(direction)
             iterator = iterator.iterator()
-        return imap(Relationship, iterator)
+        while iterator.hasNext():
+            yield Relationship(iterator.next())
 
     def outgoing(self, type=None):
-        return iter(self.__relationship(Direction.OUTGOING, type))
+        return self.__relationship(Direction.OUTGOING, type)
 
     def incoming(self, type=None):
-        return iter(self.__relationship(Direction.INCOMING, type))
+        return self.__relationship(Direction.INCOMING, type)
 
 
 class Node(Element):
@@ -93,7 +100,8 @@ class Nodes(object):
 
     def __iter__(self):
         iterator = self._operations.getAllNodes().iterator()
-        return imap(Node, iterator)
+        while iterator.hasNext():
+            yield Node(iterator.next())
 
     def __len__(self):
         return len(list(self))
@@ -114,10 +122,11 @@ class Relationships(object):
 
     def __call__(self):
         iterator = self._operations.getAllRelationships().iterator()
-        return imap(Relationship, iterator)
+        while iterator.hasNext():
+            yield Relationship(iterator.next())
 
     def types(self):
-        return self.__operations.getAllRelationshipTypes()
+        return self._operations.getAllRelationshipTypes()
 
     def get(self, id):
         return Relationship(self._db.getRelationshipById(id))
@@ -126,8 +135,6 @@ class Relationships(object):
 class GraphDB(object):
 
     def __init__(self, path):
-        jpype.attachThreadToJVM()
-        jpype.java.lang.System.setProperty("neo4j.ext.udc.source", "altneo4j")
         self._db = EmbeddedGraphDatabase(path)
         operations = GlobalGraphOperations.at(self._db)
         self.nodes = Nodes(self._db, operations)
