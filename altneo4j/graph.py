@@ -100,7 +100,7 @@ class Nodes(object):
     def index():
         raise NotImplemented
 
-    def __iter__(self):
+    def __call__(self):
         iterator = self._operations.getAllNodes().iterator()
         while iterator.hasNext():
             yield Node(iterator.next())
