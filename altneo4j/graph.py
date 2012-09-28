@@ -47,7 +47,7 @@ class NodeRelationships(object):
     def __init__(self, node):
         self._node = node
 
-    def __iter__(self):
+    def both(self):
         return imap(Relationship, self._node.getRelationships())
 
     def __relationship(self, direction, type):
@@ -61,10 +61,10 @@ class NodeRelationships(object):
         return imap(Relationship, iterator)
 
     def outgoing(self, type=None):
-        return iter(self._node(self, Direction.OUTGOING, type))
+        return iter(self.__relationship(Direction.OUTGOING, type))
 
     def incoming(self, type=None):
-        return iter(self._node(self, Direction.INCOMING, type))
+        return iter(self.__relationship(Direction.INCOMING, type))
 
 
 class Node(Element):
