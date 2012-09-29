@@ -151,6 +151,35 @@ class FunctionnalTests(unittest.TestCase):
         copy = self.db.relationships.get(knows.id)
         self.assertEqual(knows, copy)
 
+    def test_set_retrieve_integer(self):
+        with self.db.transaction():
+            amirouche = self.db.node()
+            amirouche['name'] = 'amirouche'
+        self.assertEqual(amirouche['name'], 'amirouche')
+
+    # it fails because of some conversion approximation mistake
+    # def test_set_retrieve_float(self):
+    #     with self.db.transaction():
+    #         amirouche = self.db.node()
+    #         amirouche['age'] = 27.8
+    #     self.assertEqual(amirouche['age'], 27.8)
+
+    # doesn't work yet
+    # def test_set_retrieve_long(self):
+    #     with self.db.transaction():
+    #         amirouche = self.db.node()
+    #         amirouche['age'] = 27L
+    #     self.assertEqual(amirouche['age'], 27L)
+
+    def test_set_retrieve_list(self):
+        languages = ['french', 'english', 'amazigh']
+        with self.db.transaction():
+            amirouche = self.db.node()
+            amirouche['languages'] = languages
+        self.assertEqual(len(amirouche['languages']), len(languages))
+        for value in amirouche['languages']:
+            self.assertIn(value, languages)
+
 
 if __name__ == '__main__':
     unittest.main()

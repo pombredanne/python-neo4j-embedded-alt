@@ -1,9 +1,10 @@
-from itertools import imap
 from contextlib import contextmanager
 
 from java import DynamicRelationshipType
 from java import GlobalGraphOperations
 from java import EmbeddedGraphDatabase
+from java import to_java
+from java import from_java
 from java import Direction
 
 
@@ -14,9 +15,10 @@ class Element(object):
         return self._element.getId()
 
     def __getitem__(self, key):
-        return self._element.getProperty(key)
+        return from_java(self._element.getProperty(key))
 
     def __setitem__(self, key, value):
+        value = to_java(value)
         self._element.setProperty(key, value)
 
     def items(self):
@@ -139,8 +141,11 @@ class Relationships(object):
 
 class GraphDB(object):
 
-    def __init__(self, path):
-        self._db = EmbeddedGraphDatabase(path)
+    def __init__(self, path, config=None):
+        if config:
+            self._db = EmbeddedGraphDatabase(path, to_java(config))
+        else:
+            self._db = EmbeddedGraphDatabase(path)
         operations = GlobalGraphOperations.at(self._db)
         self.nodes = Nodes(self._db, operations)
         self.relationships = Relationships(self._db, operations)
