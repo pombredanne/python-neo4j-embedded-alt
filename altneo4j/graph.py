@@ -56,7 +56,9 @@ class NodeRelationships(object):
         self._node = node
 
     def both(self):
-        return imap(Relationship, self._node.getRelationships())
+        iterator = self._node.getRelationships().iterator()
+        while iterator.hasNext():
+            yield Relationship(iterator.next())
 
     def __relationship(self, direction, type):
         if type:
