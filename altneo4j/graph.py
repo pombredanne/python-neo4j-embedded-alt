@@ -86,6 +86,7 @@ class Node(Element):
 
     def __getattr__(self, attr):
         type = DynamicRelationshipType.withName(attr)
+
         def create_relationship(node):
             rel = self._element.createRelationshipTo(node._element, type)
             return Relationship(rel)
