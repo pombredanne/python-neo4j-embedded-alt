@@ -50,11 +50,7 @@ def to_java(value):
     #     Long = autoclass('java.lang.Long')
     #     return Long(value)
     elif isinstance(value, list):
-        ArrayList = autoclass('java.util.ArrayList')
-        out = ArrayList
-        for v in value:
-            out.add(to_java(v))
-        return out
+        return value
     elif isinstance(value, dict):
         map = HashMap()
         for k, v in value.iteritems():

@@ -157,12 +157,12 @@ class FunctionnalTests(unittest.TestCase):
             amirouche['name'] = 'amirouche'
         self.assertEqual(amirouche['name'], 'amirouche')
 
-    # it fails because of some conversion approximation mistake
-    # def test_set_retrieve_float(self):
-    #     with self.db.transaction():
-    #         amirouche = self.db.node()
-    #         amirouche['age'] = 27.8
-    #     self.assertEqual(amirouche['age'], 27.8)
+
+    def test_set_retrieve_float(self):
+        with self.db.transaction():
+            amirouche = self.db.node()
+            amirouche['age'] = 27.8
+        self.assertAlmostEqual(amirouche['age'], 27.8)
 
     # doesn't work yet
     # def test_set_retrieve_long(self):
@@ -176,8 +176,9 @@ class FunctionnalTests(unittest.TestCase):
         with self.db.transaction():
             amirouche = self.db.node()
             amirouche['languages'] = languages
-        self.assertEqual(len(amirouche['languages']), len(languages))
-        for value in amirouche['languages']:
+        l = amirouche['languages']
+        self.assertEqual(len(l), len(languages))
+        for value in l:
             self.assertIn(value, languages)
 
 
